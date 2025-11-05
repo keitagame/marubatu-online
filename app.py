@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room, leave_room, emit
 import uuid
 
@@ -119,8 +119,8 @@ def make_move(data):
     }, room=room)
 
 @socketio.on("disconnect")
-def on_disconnect():
-    sid = request.sid
+def on_disconnect(sid):
+    
     # Remove from lobby
     if sid in lobby_queue:
         lobby_queue.remove(sid)
