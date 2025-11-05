@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Marubatu-Online</title>
+  <style>
+    body { font-family: sans-serif; }
+    .board { display: grid; grid-template-columns: repeat(3, 80px); gap: 6px; margin: 20px 0; }
+    .cell { width: 80px; height: 80px; border: 1px solid #333; display:flex; align-items:center; justify-content:center; font-size: 2rem; cursor: pointer; }
+    .cell.disabled { background: #f0f0f0; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Marubatu-Online</h1>
+  <button id="queue">マッチングぅ</button>
+  <div id="status"></div>
+  <div class="board" id="board"></div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    let role = null;
+    let room = null;
+    let board = Array(9).fill("");
+
+    const statusEl = document.getElementById("status");
+    const boardEl = document.getElementById("board");
+    const queueBtn = document.getElementById("queue");
+
+    // Render board
+    function render() {
+      boardEl.innerHTML = "";
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell" + (board[i] ? " disabled" : "");
+        cell.textContent = board[i];
+        cell.onclick = () => {
+          // Block invalid interactions
+          if (!room) return;
+          if (board[i] !== "") return;
+          const turnText = statusEl.dataset.turn;
+          if (role !== turnText) return;
+          socket.emit("make_move", { room, index: i, role });
+        }
+        boardEl.appendChild(cell);
+      }
+    }
+
+    queueBtn.onclick = () => {
+      socket.emit("join_queue");
+      statusEl.textContent = "Matching...";
+    };
+
+    socket.on("game_start", (data) => {
+      role = data.role;
+      room = data.room;
+      board = data.board;
+      statusEl.textContent = `Matched! You are ${role}. Turn: ${data.turn}`;
+      statusEl.dataset.turn = data.turn;
+      render();
+    });
+
+    socket.on("board_update", (data) => {
+      board = data.board;
+      if (data.winner) {
+        statusEl.textContent = `Winner: ${data.winner}`;
+        statusEl.dataset.turn = "";
+      } else if (data.draw) {
+        statusEl.textContent = "Draw!";
+        statusEl.dataset.turn = "";
+      } else {
+        statusEl.textContent = `Turn: ${data.turn}`;
+        statusEl.dataset.turn = data.turn;
+      }
+      render();
+    });
+
+    socket.on("error_msg", (err) => {
+      statusEl.textContent = `Error: ${err.msg}`;
+    });
+
+    render();
+  </script>
+</body>
+</html>
