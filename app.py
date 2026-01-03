@@ -627,10 +627,11 @@ class SearchHandler(BaseHTTPRequestHandler):
     
     def get_results_page(self, query, results, page, total):
         results_html = ""
-        parsed = urlparse(result["url"])
-        favicon = f"https://www.google.com/s2/favicons?domain={parsed.netloc}"
-
+        
         for result in results:
+            parsed = urlparse(result["url"])
+            favicon = f"https://www.google.com/s2/favicons?domain={parsed.netloc}"
+            
             snippet = result["content"][:200] + "..." if len(result["content"]) > 200 else result["content"]
             results_html += f"""
             <div class="result">
