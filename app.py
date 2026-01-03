@@ -8,6 +8,8 @@ from urllib.parse import urljoin, urlparse, urlunparse
 from html.parser import HTMLParser
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import parse_qs
+from urllib.parse import urlparse
+
 import urllib.request
 import socket
 from urllib.error import URLError, HTTPError
@@ -453,7 +455,9 @@ class SearchIndex:
                 new_ranks[url] = (1 - damping) / n + damping * rank_sum
             self.page_rank = new_ranks
     
-    def search(self, query, top_k=10):
+    def search(self, query, page=1, per_page=10):
+
+
         """クエリ処理とランキング"""
         tokens = self.tokenize(query)
         
@@ -494,8 +498,13 @@ class SearchIndex:
                 "score": total_score
             })
         
+        # 関数末尾を変更
         scores.sort(key=lambda x: x["score"], reverse=True)
-        return scores[:top_k]
+
+        start = (page - 1) * per_page
+        end = start + per_page
+        return scores[start:end], len(scores)
+
     
     def cosine_similarity(self, vec1, vec2):
         """コサイン類似度の計算"""
@@ -530,10 +539,12 @@ class SearchHandler(BaseHTTPRequestHandler):
         elif parsed.path == "/search":
             query_params = parse_qs(parsed.query)
             query = query_params.get("q", [""])[0]
-            
+            page = int(query_params.get("page", ["1"])[0])
+
             if query:
-                results = self.search_engine.search(query)
-                html = self.get_results_page(query, results)
+                results, total = self.search_engine.search(query, page=page, per_page=10)
+                html = self.get_results_page(query, results, page, total)
+
             else:
                 html = self.get_home_page()
             
@@ -614,21 +625,37 @@ class SearchHandler(BaseHTTPRequestHandler):
 </body>
 </html>"""
     
-    def get_results_page(self, query, results):
+    def get_results_page(self, query, results, page, total):
         results_html = ""
+        parsed = urlparse(result["url"])
+        favicon = f"https://www.google.com/s2/favicons?domain={parsed.netloc}"
+
         for result in results:
             snippet = result["content"][:200] + "..." if len(result["content"]) > 200 else result["content"]
             results_html += f"""
             <div class="result">
-                <div class="result-url">{result["url"]}</div>
+                <div class="result-url">
+                    <img src="{favicon}" class="favicon">
+                        {result["url"]}
+                </div>
                 <a href="{result["url"]}" target="_blank" class="result-title">{result["title"]}</a>
                 <div class="result-snippet">{snippet}</div>
             </div>
             """
+
         
         if not results:
             results_html = '<div class="no-results">該当する結果が見つかりませんでした</div>'
-        
+        total_pages = max(1, math.ceil(total / 10))
+
+        pagination = '<div class="pagination">'
+        for p in range(1, total_pages + 1):
+            if p == page:
+                pagination += f'<span class="current">{p}</span>'
+            else:
+                pagination += f'<a href="/search?q={query}&page={p}">{p}</a>'
+        pagination += '</div>'
+
         return f"""<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -698,6 +725,28 @@ class SearchHandler(BaseHTTPRequestHandler):
             font-size: 16px; 
             color: #70757a; 
         }}
+        .favicon {{
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            margin-right: 6px;
+        }}
+
+        .pagination {{
+            margin: 30px 0;
+        }}   
+
+        .pagination a {{
+            margin: 0 6px;
+            text-decoration: none;
+            color: #1a0dab;
+        }}
+
+        .pagination .current {{
+            margin: 0 6px;
+            font-weight: bold;
+        }}
+
     </style>
 </head>
 <body>
@@ -711,6 +760,9 @@ class SearchHandler(BaseHTTPRequestHandler):
     <div class="results-container">
         {results_html}
     </div>
+    
+    {pagination}
+
 </body>
 </html>"""
     
@@ -725,7 +777,7 @@ def main():
     
     # クローラー初期化
     crawler = RealTimeWebCrawler(
-        max_pages=1000,      # クロールするページ数（必要に応じて増やす）
+        max_pages=100,      # クロールするページ数（必要に応じて増やす）
         max_threads=10,      # 同時スレッド数
         max_depth=20         # クロール深さ
     )
