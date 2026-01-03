@@ -1,6 +1,1 @@
-discord.py
-yt-dlp
-edge-tts
-flask
-flask_socketio
-eventlet
+
