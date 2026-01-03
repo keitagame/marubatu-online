@@ -12,7 +12,7 @@ import urllib.request
 import socket
 from urllib.error import URLError, HTTPError
 import ssl
-
+import os
 # HTMLパーサー
 class ContentParser(HTMLParser):
     def __init__(self, base_url):
@@ -757,7 +757,7 @@ def main():
     # サーバー起動
     SearchHandler.search_engine = search_index
     
-    port = 8000
+    port = int(os.environ.get("PORT", 8000))
     server = HTTPServer(("localhost", port), SearchHandler)
     
     print(f"\n{'='*60}")
