@@ -778,18 +778,20 @@ def main():
     
     # クローラー初期化
     crawler = RealTimeWebCrawler(
-        max_pages=100,      # クロールするページ数（必要に応じて増やす）
+        max_pages=800,      # クロールするページ数（必要に応じて増やす）
         max_threads=10,      # 同時スレッド数
-        max_depth=20         # クロール深さ
+        max_depth=40         # クロール深さ
     )
     
     # シードURL（クロール開始地点）
     seed_urls = [
+        "https://zenn.dev/",
+        "https://keitagame.github.io/",
         "https://https://qiita.com/",
         "https://github.com",
         "https://developer.mozilla.org/ja",
-        "https://ja.wikipedia.org/wiki/Web_crawler",
-        "https://ja.wikipedia.org/wiki/Search_engine",
+        "https://ja.wikipedia.org/wiki/",
+        "https://en.wikipedia.org/wiki/Search_engine",
         "https://www.python.org/",
     ]
     
