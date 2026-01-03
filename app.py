@@ -552,7 +552,7 @@ class SearchHandler(BaseHTTPRequestHandler):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>検索エンジン</title>
+    <title>アトラス</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; }
@@ -602,14 +602,14 @@ class SearchHandler(BaseHTTPRequestHandler):
 </head>
 <body>
     <div class="container">
-        <div class="logo">Search</div>
+        <div class="logo">ATLASl</div>
         <form class="search-box" action="/search" method="get">
             <input type="text" name="q" class="search-input" autofocus placeholder="検索キーワードを入力">
         </form>
         <div>
             <button class="search-button" onclick="document.querySelector('form').submit()">検索</button>
         </div>
-        <div class="info">リアルタイムWebクローラー搭載</div>
+        <div class="info">frank community</div>
     </div>
 </body>
 </html>"""
@@ -725,15 +725,18 @@ def main():
     
     # クローラー初期化
     crawler = RealTimeWebCrawler(
-        max_pages=100,      # クロールするページ数（必要に応じて増やす）
-        max_threads=5,      # 同時スレッド数
-        max_depth=2         # クロール深さ
+        max_pages=1000,      # クロールするページ数（必要に応じて増やす）
+        max_threads=10,      # 同時スレッド数
+        max_depth=20         # クロール深さ
     )
     
     # シードURL（クロール開始地点）
     seed_urls = [
-        "https://en.wikipedia.org/wiki/Web_crawler",
-        "https://en.wikipedia.org/wiki/Search_engine",
+        "https://https://qiita.com/",
+        "https://github.com",
+        "https://developer.mozilla.org/ja",
+        "https://ja.wikipedia.org/wiki/Web_crawler",
+        "https://ja.wikipedia.org/wiki/Search_engine",
         "https://www.python.org/",
     ]
     
