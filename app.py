@@ -747,50 +747,7 @@ class SearchHandler(BaseHTTPRequestHandler):
             margin: 0 6px;
             font-weight: bold;
         }}
-        @media (prefers-color-scheme: dark) {{
-    body {
-        background-color: #121212;
-        color: #e0e0e0;
-    }
-
-    .header {
-        border-bottom: 1px solid #333;
-    }
-
-    .search-input {
-        background-color: #1e1e1e;
-        border: 1px solid #444;
-        color: #e0e0e0;
-    }
-
-    .results-stats {
-        color: #b0b0b0;
-    }
-
-    .result-url {
-        color: #9aa0a6;
-    }
-
-    .result-title {
-        color: #8ab4f8;
-    }
-
-    .result-title:visited {
-        color: #c58af9;
-    }
-
-    .result-snippet {
-        color: #e0e0e0;
-    }
-
-    .pagination a {
-        color: #8ab4f8;
-    }
-
-    .pagination .current {
-        color: #fff;
-    }
-}}
+        
 
     </style>
 </head>
