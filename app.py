@@ -758,7 +758,7 @@ def main():
     SearchHandler.search_engine = search_index
     
     port = int(os.environ.get("PORT", 8000))
-    server = HTTPServer(("localhost", port), SearchHandler)
+    server = HTTPServer(("0.0.0.0", port), SearchHandler)
     
     print(f"\n{'='*60}")
     print(f"検索エンジンが起動しました!")
